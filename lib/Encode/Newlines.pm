@@ -1,6 +1,6 @@
 package Encode::Newlines;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $AllowMixed = 0;
 
 use strict;
@@ -56,6 +56,8 @@ foreach my $func (qw( decode encode )) {
     }
 }
 
+sub perlio_ok { 0 }
+
 1;
 __END__
 
@@ -65,7 +67,7 @@ Encode::Newlines - Normalize line ending sequences
 
 =head1 VERSION
 
-This document describes version 0.02 of Encode::Newlines, released 
+This document describes version 0.03 of Encode::Newlines, released 
 October 7, 2004.
 
 =head1 SYNOPSIS
@@ -73,17 +75,10 @@ October 7, 2004.
     use Encode;
     use Encode::Newlines;
 
-    # Convert input and output streams to CRLF
-    open IN, '<:raw:encoding(CRLF)', 'file.txt';
-    open OUT, '>:raw:encoding(CRLF)', 'file.txt';
-
     # Convert to native newlines
     # Note that decode() and encode() are equivalent here
     $native = decode(Native => $string);
     $native = encode(Native => $string);
-
-    # Convert input to LF, and output to Native
-    open IO, '+<:raw:encoding(LF-Native)', 'file.txt';
 
     {
         # Allow mixed newlines in $mixed
@@ -94,8 +89,7 @@ October 7, 2004.
 =head1 DESCRIPTION
 
 This module provides the C<CR>, C<LF>, C<CRLF> and C<Native> encodings,
-to aid in normalizing line endings.  It is designed for the L<SVK> version
-control system to support the C<svn:eol-style> property.
+to aid in normalizing line endings.
 
 It converts whatever line endings the source uses to the designated newline
 sequence, for both C<encode> and C<decode> operations.
@@ -110,13 +104,14 @@ exception is raised on behalf of the caller.  However, if the package variable
 C<$Encode::Newlines::AllowMixed> is set to a true value, then it will silently
 convert all three line endings.
 
-=head1 TODO
+=head1 CAVEATS
+
+This module is not suited for working with L<PerlIO::encoding>, because it
+cannot guarantee that the chunk bounaries won't happen within a CR/LF 
+sequence.  I'm working on L<PerlIO::eol> that should deal with this issue
+more correctly.
 
 An optional XS implemenation would be nice.
-
-=head1 SEE ALSO
-
-L<SVK>
 
 =head1 AUTHORS
 
