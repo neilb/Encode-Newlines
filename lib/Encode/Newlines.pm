@@ -1,5 +1,6 @@
 package Encode::Newlines;
-our $VERSION = '0.01';
+
+our $VERSION = '0.02';
 our $AllowMixed = 0;
 
 use strict;
@@ -12,43 +13,48 @@ use constant Native => (
     ($^O =~ /^MacOS/) ? CR : LF
 );
 
-foreach my $name (qw( CR LF CRLF Native )) {
-    no strict 'refs';
-    $Encode::Encoding{$name} = bless {
-        EOL => &$name,
-        Name => $name,
-    } => __PACKAGE__;
+foreach my $in (qw( CR LF CRLF Native )) {
+    foreach my $out (qw( CR LF CRLF Native )) {
+        no strict 'refs';
+        my $name = (($in eq $out) ? $in : "$in-$out");
+
+        $Encode::Encoding{$name} = bless {
+            Name => $name,
+            decode => &$in,
+            encode => &$out,
+        } => __PACKAGE__;
+    }
 };
 
-sub encode($$;$) {
-    my ($obj, $str, $chk) = @_;
+foreach my $func (qw( decode encode )) {
+    no strict 'refs';
+    *$func = sub ($$;$) {
+        my ($obj, $str, $chk) = @_;
 
-    if ($AllowMixed) {
-        $str =~ s/(?:\015\012?|\012)/$obj->{EOL}/g;
-    }
-    elsif ($str =~ /((?:\015\012?|\012))/) {
-        my $eol = $1;
-
-        if ($eol eq CRLF) {
-            require Carp;
-            Carp::croak 'Mixed newlines'
-                if $str =~ /\015(?!\012)|(?<!\015)\012/;
+        if ($AllowMixed) {
+            $str =~ s/(?:\015\012?|\012)/$obj->{$func}/g;
         }
-        else {
-            require Carp;
-            Carp::croak 'Mixed newlines'
-                if index($str, (($eol eq CR) ? LF : CR)) >= 0;
+        elsif ($str =~ /((?:\015\012?|\012))/) {
+            my $eol = $1;
+
+            if ($eol eq CRLF) {
+                require Carp;
+                Carp::croak 'Mixed newlines'
+                    if $str =~ /\015(?!\012)|(?<!\015)\012/;
+            }
+            else {
+                require Carp;
+                Carp::croak 'Mixed newlines'
+                    if index($str, (($eol eq CR) ? LF : CR)) >= 0;
+            }
+
+            $str =~ s/$eol/$obj->{$func}/g;
         }
 
-        $str =~ s/$eol/$obj->{EOL}/g;
+        $_[1] = '' if $chk;
+        return $str;
     }
-
-    $_[1] = '' if $chk;
-    return $str;
 }
-
-no warnings 'once';
-*decode = \*encode;
 
 1;
 __END__
@@ -59,8 +65,8 @@ Encode::Newlines - Normalize line ending sequences
 
 =head1 VERSION
 
-This document describes version 0.01 of Encode::Newlines, released 
-October 6, 2004.
+This document describes version 0.02 of Encode::Newlines, released 
+October 7, 2004.
 
 =head1 SYNOPSIS
 
@@ -68,13 +74,16 @@ October 6, 2004.
     use Encode::Newlines;
 
     # Convert input and output streams to CRLF
-    open IN, '<:raw:encoding(CRLF)', 'file.txt' or die $!;
-    open OUT, '>:raw:encoding(CRLF)', 'file.txt' or die $!;
+    open IN, '<:raw:encoding(CRLF)', 'file.txt';
+    open OUT, '>:raw:encoding(CRLF)', 'file.txt';
 
     # Convert to native newlines
-    # Note that encode() and decode() are equivalent
-    $native = encode(Native => $string);
+    # Note that decode() and encode() are equivalent here
     $native = decode(Native => $string);
+    $native = encode(Native => $string);
+
+    # Convert input to LF, and output to Native
+    open IO, '+<:raw:encoding(LF-Native)', 'file.txt';
 
     {
         # Allow mixed newlines in $mixed
@@ -84,12 +93,17 @@ October 6, 2004.
 
 =head1 DESCRIPTION
 
-This module provides four encodings: C<CR>, C<LF>, C<CRLF> and C<Native>,
+This module provides the C<CR>, C<LF>, C<CRLF> and C<Native> encodings,
 to aid in normalizing line endings.  It is designed for the L<SVK> version
 control system to support the C<svn:eol-style> property.
 
 It converts whatever line endings the source uses to the designated newline
 sequence, for both C<encode> and C<decode> operations.
+
+If you specify two different line endings joined by a C<->, it will use the
+first one for decoding and the second one for encoding.  For example, the
+C<LF-CRLF> encoding means that all input should be normalized to C<LF>, and
+all output should be normalized to C<CRLF>.
 
 If the source has an inconsistent line ending style, then a C<Mixed newlines>
 exception is raised on behalf of the caller.  However, if the package variable

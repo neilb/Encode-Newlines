@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 my ($CR, $LF, $CRLF) = ("\015", "\012", "\015\012");
 my $Native = (
@@ -21,6 +21,8 @@ is(encode(CRLF => ".$LF.$LF.") => ".$CRLF.$CRLF.", 'CRLF');
 is(decode(Native => ".$CR.$CR.") => ".$Native.$Native.", 'Native');
 is(encode(Native => ".$LF.$LF.") => ".$Native.$Native.", 'Native');
 is(encode(Native => ".$CRLF.$CRLF.") => ".$Native.$Native.", 'Native');
+is(decode('LF-CR' => ".$CRLF.$CRLF.") => ".$LF.$LF.", 'LF-CR');
+is(encode('LF-CR' => ".$CRLF.$CRLF.") => ".$CR.$CR.", 'LF-CR');
 
 is(eval { decode(CRLF => ".$CR.$CRLF.") } => undef, 'Mixed decode');
 like($@, qr/Mixed/, 'Mixed warnings');

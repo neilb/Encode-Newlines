@@ -1,5 +1,5 @@
 name: Encode-Newlines
-version: 0.01
+version: 0.02
 abstract: Normalize line ending sequences
 author: Autrijus Tang <autrijus@autrijus.org>
 license: perl
