@@ -1,6 +1,7 @@
 package Encode::Newlines;
 
-our $VERSION = '0.03';
+use 5.007003;
+our $VERSION = '0.04';
 our $AllowMixed = 0;
 
 use strict;
@@ -39,12 +40,12 @@ foreach my $func (qw( decode encode )) {
 
             if ($eol eq CRLF) {
                 require Carp;
-                Carp::croak 'Mixed newlines'
+                Carp::croak('Mixed newlines')
                     if $str =~ /\015(?!\012)|(?<!\015)\012/;
             }
             else {
                 require Carp;
-                Carp::croak 'Mixed newlines'
+                Carp::croak('Mixed newlines')
                     if index($str, (($eol eq CR) ? LF : CR)) >= 0;
             }
 
@@ -67,8 +68,8 @@ Encode::Newlines - Normalize line ending sequences
 
 =head1 VERSION
 
-This document describes version 0.03 of Encode::Newlines, released 
-October 7, 2004.
+This document describes version 0.04 of Encode::Newlines, released 
+September 4, 2007.
 
 =head1 SYNOPSIS
 
@@ -108,18 +109,17 @@ convert all three line endings.
 
 This module is not suited for working with L<PerlIO::encoding>, because it
 cannot guarantee that the chunk bounaries won't happen within a CR/LF 
-sequence.  I'm working on L<PerlIO::eol> that should deal with this issue
-more correctly.
+sequence.  See L<PerlIO::eol> for how to deal with this correctly.
 
 An optional XS implemenation would be nice.
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
+Audrey Tang E<lt>audreyt@audreyt.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
+Copyright 2004-2007 by Audrey Tang E<lt>audreyt@audreyt.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

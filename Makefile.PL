@@ -2,11 +2,7 @@
 
 use inc::Module::Install;
 
-name		('Encode-Newlines');
-author		('Autrijus Tang <autrijus@autrijus.org>');
-abstract	('Normalize line ending sequences');
-license		('perl');
-version_from	('lib/Encode/Newlines.pm');
-requires        ( perl => '5.7.3' );
+name            'Encode-Newlines';
+all_from        'lib/Encode/Newlines.pm';
 
-WriteAll( sign => 1 );
+sign; WriteAll;
