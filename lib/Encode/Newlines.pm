@@ -1,11 +1,13 @@
 package Encode::Newlines;
 
 use 5.007003;
-our $VERSION = '0.04';
+use strict;
+use warnings;
+
+our $VERSION = '0.05';
 our $AllowMixed = 0;
 
-use strict;
-use base qw(Encode::Encoding);
+use parent qw(Encode::Encoding);
 use constant CR => "\015";
 use constant LF => "\012";
 use constant CRLF => "\015\012";
@@ -117,7 +119,7 @@ An optional XS implemenation would be nice.
 
 Audrey Tang E<lt>audreyt@audreyt.orgE<gt>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
 Copyright 2004-2007 by Audrey Tang E<lt>audreyt@audreyt.orgE<gt>.
 

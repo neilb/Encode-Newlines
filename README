@@ -2,8 +2,8 @@ NAME
     Encode::Newlines - Normalize line ending sequences
 
 VERSION
-    This document describes version 0.04 of Encode::Newlines, released
-    September 4, 2007.
+    This document describes version 0.05 of Encode::Newlines,
+    released January 11, 2016.
 
 SYNOPSIS
         use Encode;
